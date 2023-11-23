@@ -6,7 +6,10 @@ function generatemodels(N;murange=(-4,8),sigmarange=(0.5,1.3))
     (ml,mh), (sl,sh) = murange, sigmarange
     ml,mh = ml*2, mh*2
     sr = (sh-sl)
-    return [Normal(rand(ml:mh)/2, sl+sr*rand(Float64)) for i in 1:N]
+    params = [(rand(ml:mh)/2, sl+sr*rand(Float64)) for i in 1:N]
+    #prior  = ones(N) .* 1/N 
+    #return MixtureModel(Normal, params, prior) # can omit prior if uniform
+    return [Normal(p...) for p in params]
 end
 
 function generatedata(gaussianmodels; plot=false)
@@ -119,11 +122,11 @@ end
 function main()
 
     N = 2
-    num_epoch = 1000
+    num_epoch = 4000
     # Generate Data
+    # plot data histogram
     models = generatemodels(N)
     X = generatedata(models; plot=true)
-    # plot data histogram
 
     # Initialize Models
     gmms = [(1/N,gm) for gm in generatemodels(N)]
@@ -132,7 +135,7 @@ function main()
 
 
     # EM Algorithm
-    likelihoods = emalgorithm!(gmms, X, 4000)
+    likelihoods = emalgorithm!(gmms, X, num_epoch)
 
     
     # Show Result
@@ -143,6 +146,9 @@ function main()
     p1 = plotgmmodels(gmms, X; show=false)
     p2 = plot(likelihoods)
     plot(p1,p2,size=(1600,600))
+    gui()
+    print("\rpress enter to close plot           ")
+    readline()
 
 
 end
