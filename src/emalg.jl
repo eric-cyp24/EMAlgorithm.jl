@@ -40,61 +40,82 @@ function mstepfixprior!(gmm, data, gammas)
 end
 
 """
-function emalgorithm!(gmm, data, num_epoch=1000)
+    emalgorithm!(gmm, data, num_epoch=1000; δ::AbstractFloat)
+
+given an initial GaussianMixtureModel `gmm` and a set of `data`, use EM algorithm to
+modify the `gmm` and find the best fitted GaussianMixtureModel.
+"""
+function emalgorithm!(gmm, data, num_epoch::Integer=1000; δ::AbstractFloat=10e-7)
     gammas = Matrix{Float64}(undef, size(data)[end], length(gmm))
     likelihoods = Vector{Float64}(undef,0)
     for epoch in 1:num_epoch
-        push!(likelihoods, estep!(gammas, data, gmm))
+        llh = estep!(gammas, data, gmm)
         mstep!(gmm, data, gammas)
+        push!(likelihoods, llh)
+        
+        # converge & early abort
+        if (length(likelihoods)>10) && 
+           (llh-likelihoods[end-1])/(llh-likelihoods[2]) < δ
+            break
+        end
     end
 end
-"""
 
-function emalgorithm_fixedweight!(gmm, data, num_epoch=1000; δ=10e-3)
+"""
+    emalgorithm_fixedweight!(gmm, data, num_epoch=1000; δ::AbstractFloat=10e-7)
+
+return the best fitted GaussianMixtureModel with a fixed a priori, 
+only modify the (μ, Σ) of the `gmm` components.
+"""
+function emalgorithm_fixedweight!(gmm, data, num_epoch::Integer=1000; δ::AbstractFloat=10e-7)
     gammas = Matrix{Float64}(undef, size(data)[end], length(gmm))
     likelihoods = Vector{Float64}(undef,0)
     for epoch in 1:num_epoch
         print("epoch: $epoch          \r")
         
-        push!(likelihoods, estep!(gammas, data, gmm))
+        llh = estep!(gammas, data, gmm)
         mstepfixprior!(gmm, data, gammas)
+        push!(likelihoods, llh)
         
         # converge & early abort
-        if (length(likelihoods)>10) && sum(likelihoods[end].-likelihoods[end-10:end-1]) < δ
+        if (length(likelihoods)>10) && 
+           (llh-likelihoods[end-1])/(llh-likelihoods[2]) < δ
             break
         end
     end
-    #gmm.weights .= vec(sum(gammas,dims=1)./size(gammas)[1])
 end
 
-function emalgorithm_anime!(gmm, data, num_epoch=1000; δ=10e-6, axes=[1,2])
+"""
+    emalgorithm_anime!(gmm, data, num_epoch::Integer=1000; δ::AbstractFloat=10e-7, axes=[1,2])
+
+run the emalgorithm! while plotting the intermediate results.
+"""
+function emalgorithm_anime!(gmm, data, num_epoch::Integer=1000; δ::AbstractFloat=10e-7, axes=[1,2])
     gammas = Matrix{Float64}(undef, size(data)[end], length(gmm))
     gmm_init, prior = copy(gmm), copy(gmm.weights)
     likelihoods = Vector{Float64}(undef,0)
     for epoch in 1:num_epoch
         # estep
-        push!(likelihoods, estep!(gammas, data, gmm))
+        llh = estep!(gammas, data, gmm)
         prior .= vec(sum(gammas,dims=1)./size(gammas)[1])
         
         # mstep
         mstep!(gmm, data, gammas)
+        push!(likelihoods, llh)
 
         # plot
         print("epoch: $epoch          \r")
         if ((epoch < 40) || (epoch % 40 == 39))
-            plot(;size=(800,600))
-            plotdatascatter!(data; axes, show=false)
             gmm_show = GaussianMixtureModel(gmm.components, prior)
-            plotGMM!(gmm_show; axes)
+            plot(;size=(800,600)); plotEM!(data, gmm_show; axes)
         end
-        if (length(likelihoods)>10) && sum(likelihoods[end].-likelihoods[end-10:end-1]) < δ
+        if (length(likelihoods)>10) && 
+           (llh-likelihoods[end-1])/(llh-likelihoods[2]) < δ
             break
         end
     end
-    plot(;size=(800,600))
-    plotdatascatter!(data; axes, show=false)
-    gmm.weights .= prior
-    plotGMM!(gmm; axes)
+    gmm_final = GaussianMixtureModel(gmm.components, prior)
+    plot(;size=(800,600)); plotEM!(data, gmm_final; axes)
     plotGMM!(gmm_init; axes, label="", linestyle=:dash)
     return likelihoods
 end
