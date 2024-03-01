@@ -15,6 +15,7 @@ function plotMvNormal!(mvg::MvNormal; axes=[1,2], linecolor=1, kwarg...)
     covellipse!(loc,cov; n_std=2.448, linecolor, linealpha=0.5, fillalpha=0, kwarg...)
     covellipse!(loc,cov; n_std=3.035, linecolor, linealpha=0.2, fillalpha=0, kwarg...)
     gui()
+    return plot!()
 end
 
 """
@@ -22,6 +23,9 @@ end
 
 plot the 95% and 99% confidence ellipses of the given gmm components.
 """
+function plotGMM(gmm::GaussianMixtureModel; axes=[1,2], show=true, colors=nothing, kwarg...)
+    plot(); plotGMM!(gmm;axes,show,colors,kwarg...)
+end
 function plotGMM!(gmm::GaussianMixtureModel; axes=[1,2], show=true, colors=nothing, kwarg...)
     colors = isnothing(colors) ? (1:length(gmm)) : colors
     for (i,(c,gm)) in enumerate(zip(colors, gmm.components))
@@ -32,28 +36,37 @@ function plotGMM!(gmm::GaussianMixtureModel; axes=[1,2], show=true, colors=nothi
                              linewidth=0.7, linecolor=c, kwarg...,label="")
     end
     show && gui()
+    return plot!()
 end
 
 """
-    plotdatascatter!(data::Matrix{T}; axes=[1,2], show=true, kwarg...) where T<:AbstractFloat
+    plotdatascatter!(data::AbstractMatrix; axes=[1,2], show=true, kwarg...)
 
 scatterplot of the data along the given two axes.
 """
-function plotdatascatter!(data::Matrix{T}; axes=[1,2], show=true, kwarg...) where T<:AbstractFloat
+function plotdatascatter(data::AbstractMatrix; axes=[1,2], show=true, kwarg...)
+    plot(); plotdatascatter!(data; axes, show, kwarg...)
+end
+function plotdatascatter!(data::AbstractMatrix; axes=[1,2], show=true, kwarg...)
     x,y = eachrow(data[axes,:])
     scatter!(x, y; label="", markersize=1, markeralpha=0.7, markerstrokewidth=-1, color=:grey, kwarg...)
     show && gui()
+    return plot!()
 end
 
 """
-    plotEM!(data::Matrix{T}, gmm::GaussianMixtureModel; 
-            axes=[1,2], colors=nothing, show=true, kwarg...) where T<:AbstractFloat
+    plotEM!(data::AbstractMatrix, gmm::GaussianMixtureModel; 
+            axes=[1,2], colors=nothing, show=true, kwarg...)
 
 plot the scatterplot of the given data and the 95% and 99% 
 confidence ellipses of the gmm components.
 """
-function plotEM!(data::Matrix{T}, gmm::GaussianMixtureModel; 
-                 axes=[1,2], colors=nothing, show=true, kwarg...) where T<:AbstractFloat
+function plotEM(data::AbstractMatrix, gmm::GaussianMixtureModel; 
+                 axes=[1,2], colors=nothing, show=true, kwarg...)
+    plot(); plotEM!(data, gmm; axes, colors, show, kwarg...)
+end
+function plotEM!(data::AbstractMatrix, gmm::GaussianMixtureModel; 
+                 axes=[1,2], colors=nothing, show=true, kwarg...)
     plotdatascatter!(data; axes, show=false, kwarg...)
     plotGMM!(gmm; axes, show, colors, kwarg...)
 end
