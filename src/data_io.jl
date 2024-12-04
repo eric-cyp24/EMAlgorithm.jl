@@ -19,10 +19,10 @@ function loaddata(filename)
 end
 
 """
-    loadmodels(gaussians, prior=nothing)
+    loadmodels(gaussians, weight=nothing)
 
 generate a GaussianMixtureModel from the given vector of (μ, Σ).
-If `prior` is not specified, all components are given equal prior.
+If `weight` is not specified, all components are given equal weight.
 
 # Examples
 ```julia-repl
@@ -41,44 +41,44 @@ dim: 2
 ```
 """
 function loadmodels(gaussians::Vector{Tuple{Vector{T}, Matrix{T}}}, 
-                    prior=nothing::Union{Nothing,Vector{T}}) where T<:AbstractFloat
+                    weight=nothing::Union{Nothing,Vector{T}}) where T<:AbstractFloat
     components = [MvNormal(mu,sig) for (mu,sig) in gaussians]
-    prior      = isnothing(prior) ? ones(length(components))./length(components) : prior
-    gmm        = GaussianMixtureModel(components, prior)
+    weight     = isnothing(weight) ? ones(length(components))./length(components) : weight
+    gmm        = GaussianMixtureModel(components, weight)
     return gmm
 end
 
 """
-    loadmodels(mus, sigmas, prior=nothing)
+    loadmodels(mus, sigmas, weight=nothing)
 
 generate a GaussianMixtureModel from the given `mus` and `sigmas`.
 """
 function loadmodels(mus::Matrix{T}, sigmas::Array{T, 3},
-                    prior=nothing::Union{Nothing,Vector{T}}) where T<:AbstractFloat
+                    weight=nothing::Union{Nothing,Vector{T}}) where T<:AbstractFloat
     components = [MvNormal(mu,sig) for (mu,sig) in zip(eachcol(mus),eachslice(sigmas;dims=3))]
-    prior      = isnothing(prior) ? ones(length(components))./length(components) : prior
-    gmm        = GaussianMixtureModel(components, prior)
+    weight     = isnothing(weight) ? ones(length(components))./length(components) : weight
+    gmm        = GaussianMixtureModel(components, weight)
     return gmm
 end
 
 ### generate data ########
 """
-    generatemodels(N; dims, equalprior::Bool)
+    generatemodels(N; dims, equalweight::Bool)
 
 randomly generate a GaussianMixtureModel.
 
 # Arguments
 - `N::Integer`: number of components.
 - `dims::Integer`: the dimension of the GaussianMixtureModel.
-- `equalprior`: if false, assign random prior to each component.
+- `equalweight`: if false, assign random weight to each component.
 """
-function generatemodels(N::Integer; dims::Integer=2, equalprior::Bool=false)
-    mus,prior  = rand(-10:0.5:10,dims,N),rand(1:10,N)
+function generatemodels(N::Integer; dims::Integer=2, equalweight::Bool=false)
+    mus,weight = rand(-10:0.5:10,dims,N),rand(1:10,N)
     sigs       = rand(0.7:0.1:2,dims,2*dims,N).*rand(-1:2:1,dims,2*dims,N)
     sigs       = [sigs[:,:,i]*transpose(sigs[:,:,i]) for i in 1:N]
-    prior      = equalprior ? ones(N)./N : prior./sum(prior)
+    weight     = equalweight ? ones(N)./N : weight./sum(weight)
     components = [MvNormal(m,s) for (m,s) in zip(eachcol(mus),sigs)]
-    return GaussianMixtureModel(components, prior)
+    return GaussianMixtureModel(components, weight)
 end
 
 """

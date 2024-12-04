@@ -108,7 +108,7 @@ EM Algorithm
 begin
 	num_epoch = 5000
 	gammas = Matrix{Float64}(undef, size(X)[end], length(gmm))
-	gmm_history, prior = [copy(gmm)], copy(gmm.weights)
+	gmm_history, weight = [copy(gmm)], copy(gmm.weights)
     likelihoods = Vector{Float64}(undef,0)
     @progress for epoch in 1:num_epoch
         # estep
