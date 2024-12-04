@@ -2,3 +2,6 @@
 *.h5
 test/test_*
 data/*
+
+Manifest.toml
+TODO

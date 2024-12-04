@@ -8,7 +8,7 @@ include("utils.jl")                 # plotGMM!, plotdatascatter!, plotMvNormal!
 include("emalg.jl")                 # emalgorithm!, emalgorithm_fixedweight!
 
 export GaussianMixtureModel, 
-       generatemodels, generatedata, loaddata, loadmodels, 
+       generatemodels, generatedata, loadmodels, 
        plotMvNormal!, plotGMM!, plotdatascatter!, plotEM!,
        emalgorithm!, emalgorithm_anime!, emalgorithm_fixedweight!, emalgorithm_fixedweight_mprocess!
 
