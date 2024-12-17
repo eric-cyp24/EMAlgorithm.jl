@@ -91,7 +91,7 @@ end
 
 run the emalgorithm! while plotting the intermediate results.
 """
-function emalgorithm_anime!(gmm, data, num_epoch::Integer=1000; δ::AbstractFloat=10e-7, axes=[1,2])
+function emalgorithm_anime!(gmm, data, num_epoch::Integer=1000; δ::AbstractFloat=10e-7, axes=[1,2], kwargs...)
     gammas = Matrix{Float64}(undef, size(data,2), length(gmm))
     gmm_init, weight = copy(gmm), copy(gmm.weights)
     likelihoods = Vector{Float64}(undef,0)
@@ -108,7 +108,7 @@ function emalgorithm_anime!(gmm, data, num_epoch::Integer=1000; δ::AbstractFloa
         print("epoch: $epoch          \r")
         if ((epoch < 40) || (epoch % 40 == 39))
             gmm_show = GaussianMixtureModel(gmm.components, weight)
-            plot(;size=(800,600)); plotEM!(data, gmm_show; axes)
+            plotEM(data, gmm_show; axes, kwargs...)
         end
         if (length(likelihoods)>10) && 
            (llh-likelihoods[end-1])/(llh-likelihoods[2]) < δ
@@ -116,8 +116,8 @@ function emalgorithm_anime!(gmm, data, num_epoch::Integer=1000; δ::AbstractFloa
         end
     end
     gmm_final = GaussianMixtureModel(gmm.components, weight)
-    plot(;size=(800,600)); plotEM!(data, gmm_final; axes)
-    plotGMM!(gmm_init; axes, label="", linestyle=:dash)
+    plotEM(data, gmm_final; axes, kwargs...)
+    plotGMM!(gmm_init; axes, label="", linestyle=:dash, kwargs...)
     return likelihoods
 end
 
@@ -146,7 +146,7 @@ function emalgorithm_fixedweight!(gmm, data, num_epoch::Integer=1000; δ::Abstra
     return likelihoods[end]
 end
 
-function emalgorithm_fixedweight_anime!(gmm, data, num_epoch::Integer=1000; δ::AbstractFloat=10e-7, axes=[1,2])
+function emalgorithm_fixedweight_anime!(gmm, data, num_epoch::Integer=1000; δ::AbstractFloat=10e-7, axes=[1,2], kwargs...)
     gammas = Matrix{Float64}(undef, size(data)[end], length(gmm))
     gmm_init, weight = copy(gmm), copy(gmm.weights)
     likelihoods = Vector{Float64}(undef,0)
@@ -162,7 +162,7 @@ function emalgorithm_fixedweight_anime!(gmm, data, num_epoch::Integer=1000; δ::
         print("epoch: $epoch          \r")
         if ((epoch < 40) || (epoch % 40 == 39))
             gmm_show = GaussianMixtureModel(gmm.components, weight)
-            plot(;size=(800,600)); plotEM!(data, gmm_show; axes)
+            plotEM(data, gmm_show; axes, kwargs...)
         end
         # converge & early abort
         if (length(likelihoods)>10) && 
@@ -171,8 +171,8 @@ function emalgorithm_fixedweight_anime!(gmm, data, num_epoch::Integer=1000; δ::
         end
     end
     gmm_final = GaussianMixtureModel(gmm.components, weight)
-    plot(;size=(800,600)); plotEM!(data, gmm_final; axes)
-    plotGMM!(gmm_init; axes, label="", linestyle=:dash)
+    plotEM(data, gmm_final; axes, kwargs...)
+    plotGMM!(gmm_init; axes, label="", linestyle=:dash, kwargs...)
     return likelihoods
 end
 
