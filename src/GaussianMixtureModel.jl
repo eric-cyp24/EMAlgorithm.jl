@@ -48,6 +48,21 @@ function GaussianMixtureModel(mus::AbstractMatrix, sigmas::AbstractArray, w::Uni
     return GaussianMixtureModel(components, w)
 end
 
+###
+
+function means(gmm::GaussianMixtureModel)
+    return [g.μ for g in gmm.components]
+end
+
+function weights(gmm::GaussianMixtureModel)
+    return gmm.weights
+end
+
+function covs(gmm::GaussianMixtureModel)
+    return [g.Σ.mat for g in gmm.components]
+end
+
+###
 
 Base.copy(gmm::GaussianMixtureModel)   = GaussianMixtureModel(copy(gmm.components),copy(gmm.weights))
 
@@ -73,3 +88,31 @@ end
 function Base.:(==)(gmm1::GaussianMixtureModel, gmm2::GaussianMixtureModel)
     return (gmm1.components == gmm2.components) && (gmm1.weights == gmm2.weights)
 end
+
+###
+
+"""
+    mean(gmm::GaussianMixtureModel)
+
+Compute the overall mean of the `gmm`.
+"""
+function mean(gmm::GaussianMixtureModel)
+    return sum(gmm.weights.*means(gmm))
+end
+
+"""
+    cov(gmm::GaussianMixtureModel)
+
+Compute the overall covariance matrix of the `gmm`.
+"""
+function cov(gmm::GaussianMixtureModel)
+    μbar = mean(gmm)
+    μs   = [g.μ-μbar for g in gmm.components]
+    Σ    = sum(gmm.weights.*covs(gmm))
+    for (w,μ) in zip(gmm.weights,μs)
+        Σ += w*(μ*μ')
+    end
+    return Σ
+end
+
+
