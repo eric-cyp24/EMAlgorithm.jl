@@ -27,7 +27,7 @@ function mstep!(gmm, data, gammas)
         x = (data.-μ).*transpose(sqrt.(gamma)) # try LinearAlgebra.BLAS.syr!
         Σ = (x*transpose(x)) ./ gamma_sum
         p = gamma_sum / length(gamma)
-        
+
         update!(gmm, i, MvNormal(μ,Σ), p)
     end
 end
@@ -40,7 +40,7 @@ function mstepfixweight!(gmm, data, gammas)
         x = (data.-μ).*transpose(sqrt.(gamma))
         Σ = (x*transpose(x)) ./ gamma_sum
         p = gmm.weights[i]    # do not update weights
-        
+
         update!(gmm, i, MvNormal(μ,Σ))
     end
 end
@@ -49,7 +49,7 @@ end
 
 """
 Cauculate the responsibility of each gmm component from the given data.
-This is the same as the p update in mstep!. 
+This is the same as the p update in mstep!.
 This is used to evaluate the weight of each component for mstepfixweight!.
 """
 function datadistribution(gmm::GaussianMixtureModel, data)
@@ -76,9 +76,9 @@ function emalgorithm!(gmm, data, num_epoch::Integer=1000; δ::AbstractFloat=10e-
         llh = estep!(gammas, data, gmm)
         mstep!(gmm, data, gammas)
         push!(likelihoods, llh)
-        
+
         # converge & early abort
-        if (length(likelihoods)>10) && 
+        if (length(likelihoods)>5) &&
            (llh-likelihoods[end-1])/(llh-likelihoods[2]) < δ
             break
         end
@@ -99,7 +99,7 @@ function emalgorithm_anime!(gmm, data, num_epoch::Integer=1000; δ::AbstractFloa
         # estep
         llh = estep!(gammas, data, gmm)
         weight .= vec(sum(gammas,dims=1)./size(gammas)[1])
-        
+
         # mstep
         mstep!(gmm, data, gammas)
         push!(likelihoods, llh)
@@ -110,7 +110,7 @@ function emalgorithm_anime!(gmm, data, num_epoch::Integer=1000; δ::AbstractFloa
             gmm_show = GaussianMixtureModel(gmm.components, weight)
             plotEM(data, gmm_show; axes, kwargs...)
         end
-        if (length(likelihoods)>10) && 
+        if (length(likelihoods)>5) &&
            (llh-likelihoods[end-1])/(llh-likelihoods[2]) < δ
             break
         end
@@ -132,13 +132,13 @@ function emalgorithm_fixedweight!(gmm, data, num_epoch::Integer=1000; δ::Abstra
     likelihoods = Vector{Float64}(undef,0)
     for epoch in 1:num_epoch
         print("epoch: $epoch          \r")
-        
+
         llh = estep!(gammas, data, gmm)
         mstepfixweight!(gmm, data, gammas)
         push!(likelihoods, llh)
-        
+
         # converge & early abort
-        if (length(likelihoods)>10) && 
+        if (length(likelihoods)>5) &&
            (llh-likelihoods[end-1])/(llh-likelihoods[2]) < δ
             break
         end
@@ -152,12 +152,12 @@ function emalgorithm_fixedweight_anime!(gmm, data, num_epoch::Integer=1000; δ::
     likelihoods = Vector{Float64}(undef,0)
     for epoch in 1:num_epoch
         print("epoch: $epoch          \r")
-        
+
         llh = estep!(gammas, data, gmm)
         weight .= vec(sum(gammas,dims=1)./size(gammas)[1])
         mstepfixweight!(gmm, data, gammas)
         push!(likelihoods, llh)
-        
+
         # plot
         print("epoch: $epoch          \r")
         if ((epoch < 40) || (epoch % 40 == 39))
@@ -165,7 +165,7 @@ function emalgorithm_fixedweight_anime!(gmm, data, num_epoch::Integer=1000; δ::
             plotEM(data, gmm_show; axes, kwargs...)
         end
         # converge & early abort
-        if (length(likelihoods)>10) && 
+        if (length(likelihoods)>5) &&
            (llh-likelihoods[end-1])/(llh-likelihoods[2]) < δ
             break
         end
@@ -232,10 +232,11 @@ function emalgorithm_fixedweight_mprocess!(gmm, data, num_epoch::Integer=1000; �
         llh = estep_mprocess!(gammas, data, gmm)
         mstepfixweight_mprocess!(gmm, data, gammas; μs, Σs)
         push!(likelihoods, llh)
-        
+
         # converge & early abort
-        if (length(likelihoods)>10) && 
-           (llh-likelihoods[end-1])/(llh-likelihoods[2]) < δ
+        if (length(likelihoods)>5) &&
+            #(llh-likelihoods[end-1])/(likelihoods[end-1]-likelihoods[end-2]) < (1-δ)
+            (llh-likelihoods[end-1])/(llh-likelihoods[2]) < δ
             break
         end
     end
