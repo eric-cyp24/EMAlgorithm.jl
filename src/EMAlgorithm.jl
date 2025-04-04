@@ -5,7 +5,7 @@ using Distributed, StatsPlots, HDF5, LinearAlgebra, Distributions, SharedArrays
 import Statistics: mean, cov
 
 include("GaussianMixtureModel.jl")  # mutable struct GaussianMixtureModel
-include("data_io.jl")               # loaddata, loadtemplate, generatemodels, generatedata,
+include("data_io.jl")               # loadtemplate, generatemodels, generatedata,
 include("utils.jl")                 # plotGMM!, plotdatascatter!, plotMvNormal!
 include("emalg.jl")                 # emalgorithm!, emalgorithm_fixedweight!
 

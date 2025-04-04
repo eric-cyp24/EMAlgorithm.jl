@@ -110,9 +110,9 @@ function cov(gmm::GaussianMixtureModel)
     μs   = [g.μ-μbar for g in gmm.components]
     Σ    = sum(gmm.weights.*covs(gmm))
     for (w,μ) in zip(gmm.weights,μs)
-        Σ += w*(μ*μ')
+        LinearAlgebra.BLAS.syr!('U',w,μ,Σ)
     end
-    return Σ
+    return Symmetric(Σ)
 end
 
 
