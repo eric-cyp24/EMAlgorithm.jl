@@ -2,23 +2,6 @@
 
 ### load data ########
 """
-    loaddata(filename)
-
-load traces and intermediate_values from HDF5 file.
-"""
-function loaddata(filename)
-    f = h5open(filename, "r")
-    Traces = read(f["Data"]["Trace"])
-    try
-        Ans = read(f["Data"]["Ans"])
-    catch KeyError
-        Ans = nothing
-    end
-    close(f)
-    return Traces, Ans
-end
-
-"""
     loadmodels(gaussians, weight=nothing)
 
 generate a GaussianMixtureModel from the given vector of (μ, Σ).
