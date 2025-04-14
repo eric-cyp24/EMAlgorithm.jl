@@ -1,6 +1,6 @@
 name = "EMAlgorithm"
 uuid = "a8862b33-3f69-4e09-bbbb-c3cbbf61c7cd"
-authors = ["cyp24 "]
+authors = ["Eric Peng <cyp24@cl.cam.ac.uk>"]
 version = "0.1.0"
 
 [deps]
