@@ -88,7 +88,7 @@ end
 
 # ╔═╡ 204d98b5-288a-4269-b1e7-f232be0bba78
 begin
-	# observed/incomplete data X 
+	# observed/incomplete data X
 	plot(;size=(800,600),lims=(-22.5,22.5))
 	plotdatascatter!(X, color=RGB(0.33,0.33,0.33), markersize=2.5)
 	if plot_gmm_init
@@ -115,12 +115,12 @@ begin
         # estep
 		llh = EMAlgorithm.estep!(gammas, X, gmm)
         push!(likelihoods, llh)
-        
+
         # mstep
         EMAlgorithm.mstep!(gmm, X, gammas)
 		push!(gmm_history, copy(gmm))
 
-        if (length(likelihoods)>10) && 
+        if (length(likelihoods)>10) &&
 		   (likelihoods[end]-likelihoods[end-1])/(likelihoods[end]-likelihoods[2]) < 10e-7
             break
         end
@@ -134,8 +134,8 @@ show true model: $(@bind show_true_gmm CheckBox())
 
 # ╔═╡ 44d71f7f-0094-4148-a263-c568d68c8c60
 md"""
-show Z:  $( 
-	@bind Z_info Select(["unknown", "estimate", "true"]) 
+show Z:  $(
+	@bind Z_info Select(["unknown", "estimate", "true"])
 )
 """
 
@@ -148,7 +148,7 @@ iteration: $(
 
 # ╔═╡ 2a87fcdd-905e-40f5-a5c0-14597a442796
 begin
-	# observed/incomplete data X 
+	# observed/incomplete data X
 	plot(;size=(800,600),lims=(-22.5,22.5),
 	      title="EM Algorithm & Latent Variables Estimation")
 	if Z_info == "unknown"
@@ -166,7 +166,7 @@ begin
 		plotdatascatter!(X, color=RGB(0.33,0.33,0.33), markersize=2.5)
 	end
 
-	
+
 	plotGMM!(gmm_history[t]; colors=Z_color, linestyle=:dash)
 	if show_true_gmm
 		plotGMM!(gmm_true; colors=Z_color)

@@ -66,7 +66,7 @@ for epoch in range(num_epochs):
     total = gamma1 + gamma2
     gamma1 /= total
     gamma2 /= total
-     
+
     # M-step: Update parameters
     mu1_hat = np.sum(gamma1 * X) / np.sum(gamma1)
     mu2_hat = np.sum(gamma2 * X) / np.sum(gamma2)
@@ -74,7 +74,7 @@ for epoch in range(num_epochs):
     sigma2_hat = np.sqrt(np.sum(gamma2 * (X - mu2_hat)**2) / np.sum(gamma2))
     pi1_hat = np.mean(gamma1)
     pi2_hat = np.mean(gamma2)
-     
+
     #print(f'N1~({mu1_hat:.2f},{sigma1_hat:.2f}), N2~({mu2_hat:.2f},{sigma2_hat:.2f})',end='              \r')
 
     # Compute log-likelihood
@@ -108,7 +108,7 @@ plt.title('Log-Likelihood vs. Epoch')
 X_sorted = np.sort(X)
 density_estimation =   pi1_hat * norm.pdf(X_sorted, mu1_hat, sigma1_hat) \
                      + pi2_hat * norm.pdf(X_sorted, mu2_hat, sigma2_hat)
-  
+
 #plt.plot(X_sorted, gaussian_kde(X_sorted)(X_sorted), color='green', linewidth=2)
 plt.figure()
 sns.kdeplot(X_sorted)

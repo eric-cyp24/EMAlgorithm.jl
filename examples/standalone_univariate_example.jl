@@ -7,7 +7,7 @@ function generatemodels(N;murange=(-4,8),sigmarange=(0.5,1.3))
     ml,mh = ml*2, mh*2
     sr = (sh-sl)
     params = [(rand(ml:mh)/2, sl+sr*rand(Float64)) for i in 1:N]
-    #weight  = ones(N) .* 1/N 
+    #weight  = ones(N) .* 1/N
     #return MixtureModel(Normal, params, weight) # can omit weight if uniform
     return [Normal(p...) for p in params]
 end
@@ -137,7 +137,7 @@ function main()
     # EM Algorithm
     likelihoods = emalgorithm!(gmms, X, num_epoch)
 
-    
+
     # Show Result
     println("EM Alg result;")
     for (i,(p,gm)) in enumerate(gmms)

@@ -23,7 +23,7 @@ dim: 2
 ], [0.5, 0.5])
 ```
 """
-function loadmodels(gaussians::Vector{Tuple{Vector{T}, Matrix{T}}}, 
+function loadmodels(gaussians::Vector{Tuple{Vector{T}, Matrix{T}}},
                     weight=nothing::Union{Nothing,Vector{T}}) where T<:AbstractFloat
     components = [MvNormal(mu,sig) for (mu,sig) in gaussians]
     weight     = isnothing(weight) ? ones(length(components))./length(components) : weight

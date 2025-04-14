@@ -30,9 +30,9 @@ function plotGMM!(gmm::GaussianMixtureModel; axes=[1,2], show=true, colors=nothi
     colors = isnothing(colors) ? (1:length(gmm)) : colors
     for (i,(c,gm)) in enumerate(zip(colors, gmm.components))
         loc, cov = gm.μ[axes], gm.Σ[axes,axes]
-        covellipse!(loc,cov; n_std=2.448, fillalpha=0, linealpha=1, 
+        covellipse!(loc,cov; n_std=2.448, fillalpha=0, linealpha=1,
                              linewidth=1, linecolor=c, label="$(gmm.weights[i]*100) %",kwargs...)
-        covellipse!(loc,cov; n_std=3.035, fillalpha=0, linealpha=0.5, 
+        covellipse!(loc,cov; n_std=3.035, fillalpha=0, linealpha=0.5,
                              linewidth=0.7, linecolor=c, kwargs...,label="")
     end
     show && gui()
@@ -55,17 +55,17 @@ function plotdatascatter!(data::AbstractMatrix; axes=[1,2], show=true, kwargs...
 end
 
 """
-    plotEM!(data::AbstractMatrix, gmm::GaussianMixtureModel; 
+    plotEM!(data::AbstractMatrix, gmm::GaussianMixtureModel;
             axes=[1,2], colors=nothing, show=true, kwargs...)
 
-plot the scatterplot of the given data and the 95% and 99% 
+plot the scatterplot of the given data and the 95% and 99%
 confidence ellipses of the gmm components.
 """
-function plotEM(data::AbstractMatrix, gmm::GaussianMixtureModel; 
+function plotEM(data::AbstractMatrix, gmm::GaussianMixtureModel;
                  axes=[1,2], colors=nothing, show=true, kwargs...)
     plot(); plotEM!(data, gmm; axes, colors, show, kwargs...)
 end
-function plotEM!(data::AbstractMatrix, gmm::GaussianMixtureModel; 
+function plotEM!(data::AbstractMatrix, gmm::GaussianMixtureModel;
                  axes=[1,2], colors=nothing, show=true, kwargs...)
     plotdatascatter!(data; axes, show=false, kwargs...)
     plotGMM!(gmm; axes, show, colors, kwargs...)
